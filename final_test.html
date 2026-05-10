@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Interview Test</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Unbounded:wght@400;700;900&display=swap');
+
+  :root {
+    --bg: #080810;
+    --surface: #0f0f1a;
+    --border: #1e1e3a;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --green: #43e97b;
+    --red: #ff4d6d;
+    --text: #e0e0f0;
+    --muted: #555570;
+    --code-bg: #13131f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .header h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(22px, 5vw, 36px);
+    font-weight: 900;
+    letter-spacing: -1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .header p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  .progress-bar {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto 12px;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .counter {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .question-card {
+    max-width: 680px;
+    margin: 0 auto 48px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    position: relative;
+    transition: border-color 0.3s;
+  }
+
+  .question-card.correct { border-color: var(--green); }
+  .question-card.wrong { border-color: var(--red); }
+
+  .q-number {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+
+  .q-tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 10px;
+    border-radius: 20px;
+    background: #1a1a3a;
+    color: #8888cc;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+
+  .q-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 18px;
+  }
+
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 18px;
+    color: #a8d8a8;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    line-height: 1.5;
+  }
+
+  .option:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: #0d0d1f;
+  }
+
+  .option.selected-correct {
+    border-color: var(--green);
+    background: #0a1f0a;
+    color: var(--green);
+  }
+
+  .option.selected-wrong {
+    border-color: var(--red);
+    background: #1f0a0a;
+    color: var(--red);
+  }
+
+  .option.reveal-correct {
+    border-color: var(--green);
+    color: var(--green);
+    opacity: 0.6;
+  }
+
+  .option:disabled { cursor: default; }
+
+  .explanation {
+    margin-top: 16px;
+    padding: 14px;
+    background: var(--code-bg);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #aaa;
+    display: none;
+  }
+
+  .explanation.show { display: block; }
+  .explanation strong { color: var(--text); }
+
+  .result-screen {
+    max-width: 680px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 48px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    display: none;
+  }
+
+  .result-screen.show { display: block; }
+
+  .score-big {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 72px;
+    font-weight: 900;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+
+  .score-label {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 8px 0 32px;
+  }
+
+  .verdict {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .verdict-text {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+
+  .btn-restart {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 32px;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .btn-restart:hover { opacity: 0.85; }
+
+  .mistakes-list {
+    text-align: left;
+    margin: 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mistake-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .mistake-item span { color: var(--red); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>JAVA INTERVIEW TEST</h1>
+  <p>итоговое повторение · 30 вопросов</p>
+</div>
+
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="counter" id="counter">Вопрос 1 из 30</div>
+
+<div id="questions-container"></div>
+<div class="result-screen" id="result"></div>
+
+<script>
+const questions = [
+  // SQL
+  {
+    tag: "SQL · Индексы",
+    q: "Есть составной индекс (email, status). Какой запрос НЕ использует индекс?",
+    options: ["WHERE email = 'a@b.com'", "WHERE email = 'a@b.com' AND status = 'active'", "WHERE status = 'active'", "WHERE email = 'a@b.com' AND status = 'active' AND id = 1"],
+    correct: 2,
+    explanation: "<strong>Принцип левого префикса</strong> — составной индекс работает только если запрос начинается с первого поля. WHERE status отдельно → Seq Scan."
+  },
+  {
+    tag: "SQL · Транзакции",
+    q: "Что такое Dirty Read?",
+    options: ["Чтение удалённых данных", "Чтение незакоммиченных данных другой транзакции", "Повторное чтение даёт разный результат", "Запрос возвращает новые строки"],
+    correct: 1,
+    explanation: "<strong>Dirty Read</strong> — читаем данные которые другая транзакция ещё не закоммитила. Если та транзакция откатится — мы прочитали несуществующие данные."
+  },
+  {
+    tag: "SQL · Транзакции",
+    q: "Какой уровень изоляции защищает от Phantom Read?",
+    options: ["READ_UNCOMMITTED", "READ_COMMITTED", "REPEATABLE_READ", "SERIALIZABLE"],
+    correct: 3,
+    explanation: "<strong>SERIALIZABLE</strong> — полная изоляция, защищает от всех аномалий включая Phantom Read. В PostgreSQL REPEATABLE_READ тоже защищает через MVCC, но стандартно — только SERIALIZABLE."
+  },
+  // Паттерны
+  {
+    tag: "Паттерны",
+    q: "Spring бины по умолчанию — какой паттерн?",
+    options: ["Factory", "Prototype", "Singleton", "Builder"],
+    correct: 2,
+    explanation: "<strong>Singleton</strong> — один экземпляр на всё приложение. По умолчанию все Spring бины singleton. Это значит что если бин stateful — нужна синхронизация."
+  },
+  {
+    tag: "Паттерны",
+    q: "Какой паттерн используется когда DTO конвертируется в Entity?",
+    options: ["Strategy", "Adapter", "Factory", "Proxy"],
+    correct: 1,
+    explanation: "<strong>Adapter</strong> — преобразует один интерфейс в другой. DTO ↔ Entity — классический пример адаптера."
+  },
+  // JVM / Memory
+  {
+    tag: "JVM · Memory",
+    q: "Объект создан в методе. Когда он будет удалён?",
+    options: ["Сразу при выходе из метода", "Когда GC обнаружит что он недостижим", "При следующем вызове метода", "Никогда, если есть поле класса"],
+    correct: 1,
+    explanation: "<strong>Stack</strong> хранит только ссылку. Сам объект в <strong>Heap</strong>. После выхода из метода ссылка исчезает, но объект удалит только GC когда он станет недостижимым."
+  },
+  {
+    tag: "JVM · GC",
+    q: "Что такое Memory Leak в Java?",
+    options: ["Когда объект удаляется слишком рано", "Когда GC работает слишком часто", "Когда объект логически не нужен, но ссылка на него остаётся", "Когда heap переполнен"],
+    correct: 2,
+    explanation: "<strong>Memory Leak</strong> — объект не нужен, но GC не может удалить потому что на него есть ссылка. Пример: static коллекция которую никто не чистит."
+  },
+  // Collections
+  {
+    tag: "Collections",
+    q: "Что выведет код?\n\nSet<String> s = new HashSet<>();\ns.add(\"a\"); s.add(\"b\"); s.add(\"a\");\nSystem.out.println(s.size());",
+    code: true,
+    options: ["3", "2", "1", "Exception"],
+    correct: 1,
+    explanation: "<strong>HashSet</strong> не допускает дубликаты. 'a' добавится только один раз. Итого 2 элемента."
+  },
+  {
+    tag: "Collections",
+    q: "Ты положил объект в HashSet, потом изменил поле которое используется в hashCode(). Что произойдёт?",
+    options: ["Объект обновится в Set", "Объект исчезнет из Set", "Объект останется, но find/contains его не найдёт", "Выбросится исключение"],
+    correct: 2,
+    explanation: "Физически объект остаётся в старом bucket, но новый hashCode указывает на другой bucket. <strong>contains()</strong> не найдёт объект — он потерян. Именно поэтому ключи должны быть <strong>immutable</strong>."
+  },
+  {
+    tag: "Collections · HashMap",
+    q: "Что происходит при коллизии в HashMap (Java 8+)?",
+    options: ["Старый элемент перезаписывается", "Создаётся linked list, при >8 элементах → Red-Black Tree", "Выбрасывается исключение", "HashMap увеличивается в 2 раза"],
+    correct: 1,
+    explanation: "При коллизии в bucket создаётся <strong>linked list</strong>. Когда элементов больше 8 — list превращается в <strong>Red-Black Tree</strong> для O(log n) вместо O(n)."
+  },
+  // equals/hashCode
+  {
+    tag: "equals / hashCode",
+    q: "Ты переопределил equals() но не hashCode(). Объект положил в HashMap. Что сломается?",
+    options: ["Ничего, всё будет работать", "equals() перестанет работать", "get() не найдёт объект по другому равному ключу", "Объект дублируется"],
+    correct: 2,
+    explanation: "HashMap сначала ищет bucket по <strong>hashCode()</strong>. Если hashCode разный (из Object — по ссылке) — попадут в разные buckets. get() с 'равным' ключом ничего не найдёт."
+  },
+  // Transactions
+  {
+    tag: "Spring · Транзакции",
+    q: "Метод A (@Transactional) вызывает метод B (@Transactional, REQUIRES_NEW) из того же класса. Создастся ли новая транзакция?",
+    options: ["Да, REQUIRES_NEW всегда создаёт новую", "Нет, вызов через this обходит Proxy", "Зависит от настроек Spring", "Да, если метод public"],
+    correct: 1,
+    explanation: "<strong>this.method()</strong> обходит Spring Proxy. @Transactional работает только при внешнем вызове через прокси. Это одна из самых частых ошибок на собесе."
+  },
+  {
+    tag: "Spring · Транзакции",
+    q: "Propagation REQUIRES_NEW используется для логов. Основная транзакция откатилась. Что с логом?",
+    options: ["Лог тоже откатится", "Лог сохранится — он в отдельной транзакции", "Лог удалится из БД", "Зависит от порядка вызовов"],
+    correct: 1,
+    explanation: "<strong>REQUIRES_NEW</strong> — всегда создаёт новую независимую транзакцию. Основная откатилась — лог уже закоммичен и остаётся. Именно для этого и используется."
+  },
+  // JPA
+  {
+    tag: "JPA · Hibernate",
+    q: "Метод помечен @Transactional. Внутри: findById() → setName('new') → нет save(). Сохранится ли изменение?",
+    options: ["Нет, нужно явно вызвать save()", "Да, Hibernate сам сделает UPDATE при commit", "Нет, только если используется @Modifying", "Зависит от версии Hibernate"],
+    correct: 1,
+    explanation: "<strong>Dirty checking</strong> — Hibernate отслеживает все managed сущности. При commit транзакции сравнивает текущее состояние с исходным и делает UPDATE автоматически."
+  },
+  {
+    tag: "JPA · Cache",
+    q: "findById(1L) вызывается дважды в одной @Transactional. Сколько запросов уйдёт в БД?",
+    options: ["2 запроса", "1 запрос, второй из L1 кэша", "1 запрос, второй из L2 кэша", "Зависит от настроек"],
+    correct: 1,
+    explanation: "<strong>L1 кэш</strong> — кэш EntityManager-а, живёт в рамках одной транзакции. Второй вызов findById возвращает объект из кэша без запроса в БД."
+  },
+  // Многопоточность
+  {
+    tag: "Многопоточность",
+    q: "volatile гарантирует потокобезопасность операции count++?",
+    options: ["Да, volatile делает операции атомарными", "Нет, count++ состоит из 3 шагов: read→modify→write", "Да, если переменная int", "Нет, нужен synchronized блок"],
+    correct: 1,
+    explanation: "<strong>volatile</strong> гарантирует видимость изменений, но НЕ атомарность. count++ это 3 операции — race condition возможен. Нужен <strong>AtomicInteger</strong> или <strong>synchronized</strong>."
+  },
+  {
+    tag: "Многопоточность · Deadlock",
+    q: "Как предотвратить классический deadlock при блокировке двух ресурсов?",
+    options: ["Использовать volatile", "Всегда брать блокировки в одном порядке", "Использовать разные потоки", "Увеличить thread pool"],
+    correct: 1,
+    explanation: "Классический deadlock возникает когда потоки берут блокировки в разном порядке. Решение — <strong>фиксированный порядок</strong>, например по ID объекта (min first)."
+  },
+  {
+    tag: "Многопоточность · CAS",
+    q: "Что такое CAS (Compare-And-Swap)?",
+    options: ["Синхронизация через synchronized блок", "Аппаратная операция: сравни с ожидаемым, замени если совпало", "Алгоритм сборщика мусора", "Механизм управления потоками"],
+    correct: 1,
+    explanation: "<strong>CAS</strong> — аппаратная операция на уровне процессора. Atomic-классы используют CAS вместо блокировки потоков → быстрее чем synchronized для простых операций."
+  },
+  // Optional / Exceptions
+  {
+    tag: "Java · Optional",
+    q: "Можно ли использовать Optional как поле класса?",
+    options: ["Да, это лучшая практика", "Нет, Optional не Serializable и предназначен только для return type", "Да, если поле nullable", "Нет, только в Java 9+"],
+    correct: 1,
+    explanation: "<strong>Optional не Serializable</strong> → проблемы с кэшем и сетью. Создан только как <strong>return type</strong> метода. Не использовать в полях, DTO, параметрах."
+  },
+  {
+    tag: "Java · Exceptions",
+    q: "StackOverflowError — это Exception или Error? Почему?",
+    options: ["Exception, потому что можно поймать", "Error, потому что это критический сбой JVM", "RuntimeException, потому что unchecked", "Checked Exception"],
+    correct: 1,
+    explanation: "<strong>Error</strong> — критические сбои на уровне JVM, не предназначены для обработки. Exception — для программных ошибок которые программист должен обработать."
+  },
+  // SOLID
+  {
+    tag: "SOLID",
+    q: "Какой принцип SOLID нарушен?\n\nclass UserService {\n  saveUser() {}\n  sendEmail() {}\n  generateReport() {}\n}",
+    code: true,
+    options: ["OCP — не закрыт для изменений", "SRP — класс имеет несколько ответственностей", "DIP — зависит от конкретных классов", "LSP — наследник ломает родителя"],
+    correct: 1,
+    explanation: "<strong>SRP (Single Responsibility)</strong> — один класс, одна причина для изменений. Здесь три разные ответственности → три разных класса: UserService, EmailService, ReportService."
+  },
+  {
+    tag: "SOLID",
+    q: "class Penguin extends Bird { } где Bird имеет метод fly(). Какой принцип нарушен?",
+    options: ["SRP", "OCP", "LSP", "ISP"],
+    correct: 2,
+    explanation: "<strong>LSP (Liskov Substitution)</strong> — наследник должен корректно заменять родителя. Penguin не умеет летать → нарушает контракт Bird. Правильно: разделить интерфейсы Flyable и Bird."
+  },
+  // Spring
+  {
+    tag: "Spring · AOP",
+    q: "Что такое Proxy в Spring?",
+    options: ["Паттерн для создания объектов", "Обёртка вокруг бина, перехватывает вызовы и добавляет логику (@Transactional, @Cacheable)", "Механизм для работы с БД", "Альтернатива DI"],
+    correct: 1,
+    explanation: "<strong>Proxy</strong> — обёртка вокруг бина. Client → Proxy → Bean. Proxy читает аннотации и добавляет логику. Работает ТОЛЬКО при вызове из другого класса, не через this."
+  },
+  // Kafka
+  {
+    tag: "Kafka",
+    q: "Consumer упал после чтения сообщения, но до commit offset. Что произойдёт?",
+    options: ["Сообщение потеряется", "Consumer перечитает сообщение (дубликат)", "Kafka удалит сообщение", "Другой consumer возьмёт это сообщение навсегда"],
+    correct: 1,
+    explanation: "Без commit offset — Kafka не знает что сообщение обработано. Consumer поднимется и <strong>перечитает</strong> с последнего закоммиченного offset. Это поведение <strong>at-least-once</strong>."
+  },
+  {
+    tag: "Kafka",
+    q: "В Consumer Group 3 consumer-а и 2 partition-а. Что с третьим?",
+    options: ["Читает из обоих партишинов", "Простаивает — ждёт освободившийся partition", "Падает с ошибкой", "Создаёт новый partition"],
+    correct: 1,
+    explanation: "<strong>1 partition → 1 consumer</strong> в группе. Третий consumer будет <strong>idle</strong> — ждёт пока не освободится partition. Поэтому consumer-ов не делают больше чем partition-ов."
+  },
+  // String / Immutable
+  {
+    tag: "Java · String",
+    q: "Что выведет?\n\nString a = \"hello\";\nString b = new String(\"hello\");\nSystem.out.println(a == b);",
+    code: true,
+    options: ["true", "false", "Зависит от JVM", "Exception"],
+    correct: 1,
+    explanation: "<strong>a == b</strong> сравнивает ссылки. 'a' в String Pool, 'b' в Heap — разные объекты → <strong>false</strong>. Для сравнения содержимого нужен <strong>equals()</strong>."
+  },
+  {
+    tag: "Java · Immutable",
+    q: "Достаточно ли private final для List чтобы класс был immutable?\n\nprivate final List<String> roles;",
+    code: true,
+    options: ["Да, final запрещает изменения", "Нет, final только запрещает переназначить ссылку, содержимое List можно менять", "Да, если класс тоже final", "Нет, нужен synchronized"],
+    correct: 1,
+    explanation: "<strong>final</strong> запрещает переназначить ссылку (roles = newList), но <strong>не запрещает</strong> roles.add(). Нужно: List.copyOf() в конструкторе + возвращать Collections.unmodifiableList()."
+  },
+  // Record / Generics
+  {
+    tag: "Java · Record",
+    q: "Что автоматически создаётся в record?",
+    options: ["Конструктор, getters, setters, equals, hashCode", "Конструктор, getters, equals, hashCode, toString (без setters)", "Только getters и setters", "Ничего, нужно писать вручную"],
+    correct: 1,
+    explanation: "<strong>Record</strong> — immutable, сеттеров НЕТ. Автоматически: конструктор, getters, equals, hashCode, toString. Класс автоматически final → наследоваться нельзя."
+  },
+  // Stream
+  {
+    tag: "Java · Streams",
+    q: "Когда выполняются filter() и map() в Stream?",
+    options: ["Сразу при вызове", "Только когда вызывается терминальная операция (toList, collect, count)", "В отдельном потоке", "При создании Stream"],
+    correct: 1,
+    explanation: "filter() и map() — <strong>ленивые (lazy)</strong> операции. Они только записывают инструкции. Выполнение начинается только когда вызывается <strong>терминальная операция</strong>: toList(), collect(), count() и т.д."
+  },
+  // CompletableFuture
+  {
+    tag: "Async · Future",
+    q: "future.get() — что происходит с текущим потоком?",
+    options: ["Ничего, продолжает работать", "Блокируется до получения результата", "Создаётся новый поток", "Выбрасывается исключение"],
+    correct: 1,
+    explanation: "<strong>Future.get()</strong> — блокирующий вызов. Поток ждёт результата. Именно для этого создан <strong>CompletableFuture</strong> — он позволяет описать что делать с результатом без блокировки через thenApply, thenAccept."
+  },
+  {
+    tag: "Java · N+1",
+    q: "В чём суть проблемы N+1?",
+    options: ["Один запрос возвращает слишком много данных", "1 запрос для списка + N запросов для каждой связанной сущности", "N запросов выполняются параллельно", "Запрос выполняется N+1 секунд"],
+    correct: 1,
+    explanation: "<strong>N+1</strong> — загружаем список (1 запрос), потом для каждого элемента отдельный запрос за связанными данными (N запросов). Решения: Fetch Join, EntityGraph, Batch fetching, DTO проекции."
+  }
+];
+
+let answered = new Array(questions.length).fill(null);
+let score = 0;
+
+function renderQuestions() {
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+  questions.forEach((q, idx) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = 'card-' + idx;
+
+    const codeBlock = q.code ? `<div class="code-block">${q.q.split('\n').slice(1).join('\n')}</div>` : '';
+    const qText = q.code ? q.q.split('\n')[0] : q.q;
+
+    card.innerHTML = `
+      <div class="q-number">ВОПРОС ${idx + 1}</div>
+      <div class="q-tag">${q.tag}</div>
+      <div class="q-text">${qText}</div>
+      ${codeBlock}
+      <div class="options" id="opts-${idx}">
+        ${q.options.map((opt, oi) => `
+          <button class="option" onclick="answer(${idx}, ${oi})" id="opt-${idx}-${oi}">${opt}</button>
+        `).join('')}
+      </div>
+      <div class="explanation" id="exp-${idx}">${q.explanation}</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function answer(qIdx, optIdx) {
+  if (answered[qIdx] !== null) return;
+  answered[qIdx] = optIdx;
+
+  const correct = questions[qIdx].correct;
+  const card = document.getElementById('card-' + qIdx);
+  const opts = document.getElementById('opts-' + qIdx);
+  const exp = document.getElementById('exp-' + qIdx);
+
+  opts.querySelectorAll('.option').forEach(btn => btn.disabled = true);
+
+  if (optIdx === correct) {
+    score++;
+    document.getElementById(`opt-${qIdx}-${optIdx}`).classList.add('selected-correct');
+    card.classList.add('correct');
+  } else {
+    document.getElementById(`opt-${qIdx}-${optIdx}`).classList.add('selected-wrong');
+    document.getElementById(`opt-${qIdx}-${correct}`).classList.add('reveal-correct');
+    card.classList.add('wrong');
+  }
+
+  exp.classList.add('show');
+  updateProgress();
+
+  if (answered.every(a => a !== null)) {
+    setTimeout(showResult, 800);
+  }
+}
+
+function updateProgress() {
+  const done = answered.filter(a => a !== null).length;
+  document.getElementById('progress').style.width = (done / questions.length * 100) + '%';
+  document.getElementById('counter').textContent = `Отвечено ${done} из ${questions.length}`;
+}
+
+function showResult() {
+  document.getElementById('result').classList.add('show');
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+
+  const pct = Math.round(score / questions.length * 100);
+  let verdict, verdictText;
+
+  if (pct >= 90) {
+    verdict = '🔥 Готов к собесу';
+    verdictText = 'Отличный результат. Можно идти на интервью.';
+  } else if (pct >= 70) {
+    verdict = '💪 Почти готов';
+    verdictText = 'Хороший результат. Повтори ошибки и будет огонь.';
+  } else if (pct >= 50) {
+    verdict = '📚 Нужно повторить';
+    verdictText = 'Есть пробелы. Пройдись по ошибкам ещё раз.';
+  } else {
+    verdict = '🔄 Повторяй дальше';
+    verdictText = 'Много пробелов. Не страшно — повтори теорию и перепройди.';
+  }
+
+  const mistakes = questions
+    .map((q, i) => ({ q, i, ans: answered[i] }))
+    .filter(({ q, i, ans }) => ans !== q.correct);
+
+  document.getElementById('result').innerHTML = `
+    <div class="score-big">${pct}%</div>
+    <div class="score-label">${score} из ${questions.length} правильных</div>
+    <div class="verdict">${verdict}</div>
+    <div class="verdict-text">${verdictText}</div>
+    ${mistakes.length > 0 ? `
+      <div style="text-align:left; margin-bottom:8px; font-size:12px; color: var(--muted)">ОШИБКИ:</div>
+      <div class="mistakes-list">
+        ${mistakes.map(({ q, i }) => `
+          <div class="mistake-item">
+            <span>✗</span> Вопрос ${i + 1}: ${q.q.split('\n')[0].substring(0, 60)}...
+          </div>
+        `).join('')}
+      </div>
+    ` : ''}
+    <button class="btn-restart" onclick="restart()">ПРОЙТИ ЕЩЁ РАЗ</button>
+  `;
+}
+
+function restart() {
+  answered = new Array(questions.length).fill(null);
+  score = 0;
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('progress').style.width = '0%';
+  document.getElementById('counter').textContent = 'Вопрос 1 из ' + questions.length;
+  renderQuestions();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuestions();
+updateProgress();
+</script>
+</body>
+</html>
